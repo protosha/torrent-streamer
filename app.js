@@ -14,8 +14,9 @@ var rimraf = require('rimraf');
 
 
 var mongoose = require('mongoose');
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
+var cookieSession = require('cookie-session')
+// var session = require('express-session');
+// var MongoStore = require('connect-mongo')(session);
 
 //connect to MongoDB
 mongoose.connect('mongodb://localhost/testForAuth');
@@ -52,19 +53,27 @@ app.use(function(req, res, next) {
 });
 
 //use sessions for tracking logins
-app.use(session({
-    secret: '181hf00ncy1rt621b',
-    // resave: true,
-    // saveUninitialized: false,
-    // cookie: {
-    //     path    : '/',
-    //     httpOnly: false,
-    //     maxAge  : 24*60*60*1000
-    // },
-    store: new MongoStore({
-        mongooseConnection: db
-    })
-}));
+// app.use(session({
+//     secret: '181hf00ncy1rt621b',
+//     // resave: true,
+//     // saveUninitialized: false,
+//     // cookie: {
+//     //     path    : '/',
+//     //     httpOnly: false,
+//     //     maxAge  : 24*60*60*1000
+//     // },
+//     store: new MongoStore({
+//         mongooseConnection: db
+//     })
+// }));
+app.use(cookieSession({
+    name: 'session',
+    keys: ['vg1699nfxx01m2ks1m'],
+
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
+
 
 app.use('/', index);
 app.use('/api', api);
