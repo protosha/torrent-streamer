@@ -7,13 +7,18 @@
   },
   "dependencies": {
     "body-parser": "~1.18.2",
+    "connect-mongo": "^2.0.0",
+    "cookie-auth": "^2.4.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.15.5",
+    "express-session": "^1.15.6",
     "jade": "~1.11.0",
     "mongodb": "^2.2.14",
+    "mongoose": "^4.13.8",
     "monk": "^6.0.5",
     "morgan": "~1.9.0",
+    "package.json": "^2.0.1",
     "rimraf": "^2.6.2",
     "serve-favicon": "~2.4.5",
     "webtorrent": "^0.98.20"

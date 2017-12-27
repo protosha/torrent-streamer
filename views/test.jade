@@ -1,0 +1,33 @@
+extends layout
+
+block content
+
+    h1= title
+
+    p AUTH
+    form(method="POST", action="/api/login")
+        p Name
+        input(type="text", name="name")
+        p Password
+        input(type="password", name="pass")
+        p
+        input(type="submit")
+
+    p TORRENT
+    form(method="POST", action="/api/torrent")
+        p Name
+        input(type="text", name="name")
+        p Magnet
+        input(type="text", name="magnet")
+        p
+        input(type="submit")
+
+    p REG
+    form(method="post", action="/api/reg")
+        p Name
+        input(type="text", name="name")
+        p Password
+        input(type="password", name="pass")
+        p
+        input(type="submit")
+

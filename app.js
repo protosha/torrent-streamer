@@ -10,13 +10,25 @@ global.fileRoot = appRoot + '/files';
 
 var WebTorrent = require('webtorrent');
 var client = new WebTorrent();
-
 var rimraf = require('rimraf');
 
+
+var mongoose = require('mongoose');
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+
+//connect to MongoDB
+mongoose.connect('mongodb://localhost/testForAuth');
+var db = mongoose.connection;
+
+
 var index = require('./routes/index');
-var users = require('./routes/users');
+var api = require('./api');
 
 var app = express();
+
+
+
 
 
 // view engine setup
@@ -33,13 +45,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Make webtorrent accessible to our router
 app.use(function(req, res, next) {
+  // req.mongoClient = MongoClient
   req.torrentClient = client;
   req.rimraf = rimraf;
   next();
 });
 
+//use sessions for tracking logins
+app.use(session({
+    secret: '181hf00ncy1rt621b',
+    // resave: true,
+    // saveUninitialized: false,
+    // cookie: {
+    //     path    : '/',
+    //     httpOnly: false,
+    //     maxAge  : 24*60*60*1000
+    // },
+    store: new MongoStore({
+        mongooseConnection: db
+    })
+}));
+
 app.use('/', index);
-app.use('/users', users);
+app.use('/api', api);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
