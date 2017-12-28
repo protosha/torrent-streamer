@@ -27,9 +27,13 @@ router.post('/login', function(req, res, next) {
 router.delete('/logout', function(req, res, next) {
 
     console.log("Logout\n");
-    if (req.session) {
-        // delete session object
+    /*if (req.session) {
+        console.log('inside');
+        console.log(req.session);
+        delete session object
         req.session.destroy(function (err) {
+            console.log('here');
+            console.log(err);
             if (err) {
                 res.json({success: false, err: err.message});
             } else {
@@ -37,7 +41,10 @@ router.delete('/logout', function(req, res, next) {
                 res.json({success: true});
             }
         });
-    }
+    }*/
+    req.session = null;
+    // Уничтожение сессии
+    res.json({success: true });
 });
 
 module.exports = router;
