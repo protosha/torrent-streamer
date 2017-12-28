@@ -3,7 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 
 
-router.post('/', function(req, res, next) {
+router.post('/login', function(req, res, next) {
 
     console.log("Login\n");
     console.log("Name = "+req.body.name);
@@ -24,7 +24,7 @@ router.post('/', function(req, res, next) {
     });
 });
 
-router.delete('/', function(req, res, next) {
+router.delete('/logout', function(req, res, next) {
 
     console.log("Logout\n");
     if (req.session) {

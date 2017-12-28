@@ -4,20 +4,24 @@ var User = require('../models/user');
 var Torrent = require('../models/torrent');
 
 
-router.get('/', function(req, res, next) {
+router.get('/torrents', function(req, res, next) {
     console.log("Get list of torrents\n");
+    console.log(req.session);
     Torrent.find({'user_id': req.session.user_id}, function(err, doc) {
         if (err) {
             console.log(err.message);
             res.json({success: false, err: err.message});
         } else if (doc) {
+            console.log(doc);
             console.log("DOC: " + doc);
-            res.json(doc);
+            res.json({
+              torrents: doc
+            });
         }
     });
 });
 
-router.post('/', function(req, res, next) {
+router.post('/torrent', function(req, res, next) {
     console.log("Add torrent\n");
     console.log("Name = "+req.body.name);
     console.log("Magnet = "+req.body.magnet+"\n");
@@ -32,7 +36,7 @@ router.post('/', function(req, res, next) {
 });
 
 
-router.delete('/:id', function(req, res, next) {
+router.delete('/torrent/:id', function(req, res, next) {
     console.log("Del torrent");
     console.log("Name = "+req.params.id);
 
@@ -52,7 +56,7 @@ router.delete('/:id', function(req, res, next) {
     });
 });
 
-router.get('/:id/files', function(req, res, next) {
+router.get('/torrent/:id/files', function(req, res, next) {
     console.log("Get files for torrent: " + req.params.id);
     var client = req.torrentClient;
     Torrent.findOne({'_id': req.params.id}, function (err, doc) {
@@ -71,18 +75,22 @@ router.get('/:id/files', function(req, res, next) {
                         console.log('File: ' + torrent.files[i].path);
                     }
                 }
-                res.json(JSON.stringify(files.arr));
+                res.json({
+                    files: files.arr
+                });
             } else {
                 client.add(doc['magnet'], {store: false}, function (torrent) {
                     console.log('Torrent is downloading: ' + torrent.infoHash);
                     torrent._selections = [];
                     for (var i = 0; i < torrent.files.length; i++) {
-                        if (torrent.files[i].path) {
-                            files.arr.push({id: i, name: torrent.files[i].path});
-                            console.log('File: ' + torrent.files[i].path);
-                        }
+                          if (torrent.files[i].path) {
+                                files.arr.push({id: i, name: torrent.files[i].path});
+                                console.log('File: ' + torrent.files[i].path);
+                          }
                     }
-                    res.json(JSON.stringify(files.arr));
+                      res.json({
+                            files: files.arr
+                      });
                 });
             }
         }
@@ -91,7 +99,7 @@ router.get('/:id/files', function(req, res, next) {
 
 
 
-router.get('/:id/files/:fid/video', function(req, res, next) {
+router.get('/torrent/:id/file/:fid', function(req, res, next) {
     console.log('Params id: ' + req.params.id);
 
     var client = req.torrentClient;

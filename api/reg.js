@@ -8,7 +8,7 @@ var User = require('../models/user');
 // });
 
 
-router.post('/', function(req, res, next) {
+router.post('/register', function(req, res, next) {
 
     console.log("Registration\n");
     console.log("Name = "+req.body.name);
@@ -19,12 +19,12 @@ router.post('/', function(req, res, next) {
 
         var userData = {
             name: req.body.name,
-            pass: req.body.pass,
-        }
+            pass: req.body.pass
+        };
 
         User.create(userData, function (err, user) {
             if (err) {
-                // console.log("Error = "+error.toString()+"\n");
+                console.log("Error = "+error.toString()+"\n");
                 res.json({success: false, err: err.message});
             } else {
                 req.session.user_id = user;
