@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
     Torrent.find({'user_id': req.session.user_id}, function(err, doc) {
         if (err) {
             console.log(err.message);
-            return next(err);
+            res.json({success: false, err: err.message});
         } else if (doc) {
             console.log("DOC: " + doc);
             res.json(doc);
@@ -21,36 +21,43 @@ router.post('/', function(req, res, next) {
     console.log("Add torrent\n");
     console.log("Name = "+req.body.name);
     console.log("Magnet = "+req.body.magnet+"\n");
+    if (req.session.user_id) {
+        var d = new Torrent({name: req.body.name, magnet: req.body.magnet, user_id: req.session.user_id});
+        d.save();
+        res.json(d)
+    } else {
+        res.json({success: false, err: 'Available only for authorized users'});
+    }
 
-    var d = new Torrent({name: req.body.name, magnet: req.body.magnet, user_id: req.session.user_id});
-    d.save();
-
-    res.json(d)
 });
 
 
 router.delete('/:id', function(req, res, next) {
     console.log("Del torrent");
     console.log("Name = "+req.params.id);
+
     Torrent.findByIdAndRemove(req.params.id, function(err, torr) {
         if (err) {
             console.log(err.message);
-            return next(err);
+            res.json({success: false, err: err.message});
         } else {
             console.log(torr);
-            torr.remove();
+            if (req.session.user_id === torr['user_id']) {
+                torr.remove();
+                res.json({success: true});
+            } else {
+                res.json({success: false, err: 'Can not delete others torrents'});
+            }
         }
     });
-    res.end()
-
 });
 
 router.get('/:id/files', function(req, res, next) {
     console.log("Get files for torrent: " + req.params.id);
     var client = req.torrentClient;
-    Torrent.findOne({'_id': req.params.id}, function(err, doc) {
+    Torrent.findOne({'_id': req.params.id}, function (err, doc) {
         if (err) {
-            return next(err);
+            res.json({success: false, err: 'Can not delete others torrents'});
         } else if (doc) {
             console.log(doc['magnet']);
             var torrent = client.get(doc['magnet']);
@@ -59,18 +66,18 @@ router.get('/:id/files', function(req, res, next) {
             };
             if (torrent) {
                 for (var i = 0; i < torrent.files.length; i++) {
-                    if (torrent.files[i].path ) {
+                    if (torrent.files[i].path) {
                         files.arr.push({id: i, name: torrent.files[i].path});
                         console.log('File: ' + torrent.files[i].path);
                     }
                 }
                 res.json(JSON.stringify(files.arr));
             } else {
-                client.add(doc['magnet'], { store: false }, function(torrent) {
+                client.add(doc['magnet'], {store: false}, function (torrent) {
                     console.log('Torrent is downloading: ' + torrent.infoHash);
                     torrent._selections = [];
                     for (var i = 0; i < torrent.files.length; i++) {
-                        if (torrent.files[i].path ) {
+                        if (torrent.files[i].path) {
                             files.arr.push({id: i, name: torrent.files[i].path});
                             console.log('File: ' + torrent.files[i].path);
                         }
@@ -80,17 +87,17 @@ router.get('/:id/files', function(req, res, next) {
             }
         }
     });
-
 });
 
 
 
 router.get('/:id/files/:fid/video', function(req, res, next) {
     console.log('Params id: ' + req.params.id);
+
     var client = req.torrentClient;
     Torrent.findOne({'_id': req.params.id}, function(err, doc) {
         if (err) {
-            return next(err);
+            res.json({success: false, err: 'No such torrent or file'});
         } else if (doc) {
             var torrent = client.get(doc['magnet']);
             if (torrent) {
