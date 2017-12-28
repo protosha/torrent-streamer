@@ -22,14 +22,14 @@ router.post('/', function(req, res, next) {
             pass: req.body.pass,
         }
 
-        User.create(userData, function (error, user) {
-            if (error) {
+        User.create(userData, function (err, user) {
+            if (err) {
                 // console.log("Error = "+error.toString()+"\n");
-                return next(error);
+                res.json({success: false, err: err.message});
             } else {
                 req.session.user_id = user;
                 // noinspection JSAnnotator
-                res.render('test', { title: req.session.id });
+                res.json({success: true});
             }
         });
     }
